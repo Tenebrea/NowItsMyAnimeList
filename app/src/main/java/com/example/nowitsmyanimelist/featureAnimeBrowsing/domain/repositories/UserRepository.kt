@@ -1,7 +1,7 @@
-package com.example.nowitsmyanimelist.domain.repositories
+package com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories
 
 import coil3.BitmapImage
-import com.example.nowitsmyanimelist.models.User
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.User
 
 interface UserRepository {
     val currentUser: User?

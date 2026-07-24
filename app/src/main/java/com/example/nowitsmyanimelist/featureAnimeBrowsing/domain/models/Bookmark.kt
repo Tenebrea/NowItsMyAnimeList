@@ -1,4 +1,4 @@
-package com.example.nowitsmyanimelist.models
+package com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

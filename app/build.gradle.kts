@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.example.nowitsmyanimelist"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.example.nowitsmyanimelist"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -49,12 +49,16 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.viewmodel.ktx)
+    implementation(libs.material.icons.core)
+    implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.gson)
+
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
     ksp(libs.room.compiler)

@@ -1,4 +1,4 @@
-package com.example.nowitsmyanimelist.domain.repositories
+package com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories
 
 import com.example.nowitsmyanimelist.AuthResponse
 

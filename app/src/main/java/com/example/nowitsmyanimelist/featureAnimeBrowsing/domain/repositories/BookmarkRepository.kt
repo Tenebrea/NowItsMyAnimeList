@@ -1,8 +1,7 @@
-package com.example.nowitsmyanimelist.domain.repositories
+package com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories
 
 import com.example.nowitsmyanimelist.BookmarkTypes
-import com.example.nowitsmyanimelist.models.Anime
-import com.example.nowitsmyanimelist.models.Bookmark
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
 import kotlinx.coroutines.flow.Flow
 
 interface BookmarkRepository {
