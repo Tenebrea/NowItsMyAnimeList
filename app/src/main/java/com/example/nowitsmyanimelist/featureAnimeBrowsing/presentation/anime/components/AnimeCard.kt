@@ -49,7 +49,7 @@ fun AnimeCard(
     modifier: Modifier = Modifier,
     anime: Anime,
     bookmark: Bookmark?,
-    onShowMoreOptions: () -> Unit,
+    onShowMoreOptions: (Anime) -> Unit,
     isFavorite: Boolean
 ) {
     Row(
@@ -63,12 +63,13 @@ fun AnimeCard(
                 .width(96.dp)
                 .height(140.dp)
                 .clip(MaterialTheme.shapes.medium)
+                .padding(end = 4.dp)
         )
         AnimeDescription(
             modifier = Modifier.fillMaxWidth(),
             anime = anime,
             isFavorite = isFavorite,
-            onShowMoreOptions = onShowMoreOptions
+            onShowMoreOptions = { onShowMoreOptions(anime) }
         )
     }
 }
@@ -114,7 +115,8 @@ fun AnimeImage(
                             BookmarkTypes.WATCHED.name -> Color(0xFF71A3F6)
                             BookmarkTypes.ABANDONED.name -> Color(0xFFDF3D30)
                             BookmarkTypes.DELAYED.name -> Color(0xFFC29E4A)
-                            else -> Color(0xFF9466CC)
+                            BookmarkTypes.PLANNED.name -> Color(0xFF9466CC)
+                            else -> Color.Transparent
                         }
                     )
             ) {
@@ -123,6 +125,8 @@ fun AnimeImage(
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -146,7 +150,8 @@ fun AnimeDescription(
         ) {
             Text(
                 text = anime.title.romaji ?: "",
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
             IconButton(
                 onClick = onShowMoreOptions,
@@ -166,17 +171,21 @@ fun AnimeDescription(
             if (anime.status == MediaStatus.NOT_YET_RELEASED.name) {
                 Text(
                     text = "? ep",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             } else {
                 Text(
                     text = if (anime.status != MediaStatus.FINISHED.name) "${anime.episodes} out of ? ep" else "${anime.episodes} ep",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground
+
                 )
                 Row(verticalAlignment = Alignment.CenterVertically){
                     Text(
                         text = anime.meanScore.toString(),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Icon(
                         imageVector = Icons.Filled.Star,
@@ -198,7 +207,8 @@ fun AnimeDescription(
             style = MaterialTheme.typography.bodySmall,
             maxLines = 4,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

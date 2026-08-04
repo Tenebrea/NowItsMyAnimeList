@@ -1,6 +1,7 @@
 package com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components
 
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -29,7 +30,10 @@ fun <T> AnimeTabs(
                     onTabSelected(index)
                 },
                 text = {
-                    Text(text = tab.toString())
+                    Text(
+                        text = tab.toString(),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 }
             )
         }

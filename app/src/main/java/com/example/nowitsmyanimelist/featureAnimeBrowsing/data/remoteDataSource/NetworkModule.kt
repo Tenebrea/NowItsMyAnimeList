@@ -9,14 +9,17 @@ import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
+import org.koin.dsl.module
 
-object NetworkModule {
-    val client by lazy {
-        Log.d("NetworkModule", "Initializing HttpClient")
+val networkModule = module {
+    single {
         HttpClient(CIO) {
             install(ContentNegotiation) {
                 gson()
             }
         }
+    }
+    single {
+        AnimeApi(get())
     }
 }

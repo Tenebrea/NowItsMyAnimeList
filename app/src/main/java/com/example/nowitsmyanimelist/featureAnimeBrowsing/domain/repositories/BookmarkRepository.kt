@@ -11,8 +11,7 @@ interface BookmarkRepository {
     fun getAlreadyWatched(): Flow<List<Bookmark>>
     fun getDelayed(): Flow<List<Bookmark>>
     fun getAbandoned(): Flow<List<Bookmark>>
-    fun addBookmark(id: Long, bookmarkType: BookmarkTypes)
-    fun removeBookmark(id: Long)
-    fun addFavorite(id: Long)
-    fun removeFavorite(id: Long)
+    fun updateBookmark(bookmark: Bookmark)
+    fun deleteBookmark(bookmark: Bookmark)
+    fun getBookmarkById(id: Int): Bookmark?
 }

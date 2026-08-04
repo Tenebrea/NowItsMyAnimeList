@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.nowitsmyanimelist.BookmarkTypes
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.MediaStatus
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
@@ -15,23 +16,24 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.MediaCov
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Studio
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.StudioConnection
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Titles
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.AnimeBookmarkPair
 
 @Composable
 fun AnimeList(
-    animeBookmarkPairs: Map<Anime, Bookmark?>,
+    animeBookmarkPairs: List<AnimeBookmarkPair>,
     onShowMoreOptions: (Anime) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
-        items(animeBookmarkPairs.keys.toList()) { anime ->
+        items(animeBookmarkPairs, key = { it.anime.id }) { pair ->
             AnimeCard(
-                anime = anime,
+                anime = pair.anime,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
-                bookmark = animeBookmarkPairs[anime],
-                onShowMoreOptions = { onShowMoreOptions(anime) },
-                isFavorite = animeBookmarkPairs[anime]?.isFavorite ?: false
+                bookmark = pair.bookmark,
+                onShowMoreOptions = { onShowMoreOptions(pair.anime) },
+                isFavorite = pair.bookmark?.isFavorite ?: false
             )
         }
     }
@@ -41,46 +43,52 @@ fun AnimeList(
 @Composable
 fun AnimeListPreview() {
     AnimeList(
-        animeBookmarkPairs = mapOf(
-            Anime(
-                id = 1,
-                title = Titles(
-                    romaji = "Some Anime"
+        animeBookmarkPairs = listOf(
+            AnimeBookmarkPair(
+                Anime(
+                    id = 1,
+                    title = Titles(
+                        romaji = "Some Anime"
+                    ),
+                    description = "Some Anime Description",
+                    episodes = 22,
+                    isAdult = false,
+                    trending = 11,
+                    genres = listOf("Action", "Adventure"),
+                    meanScore = 5,
+                    status = MediaStatus.RELEASING.toString(),
+                    studios = StudioConnection(nodes = listOf(Studio("Mappa"))),
+                    coverImage = MediaCoverImage(null)
                 ),
-                description = "Some Anime Description",
-                episodes = 22,
-                isAdult = false,
-                trending = 11,
-                genres = listOf("Action", "Adventure"),
-                meanScore = 5,
-                status = MediaStatus.RELEASING.toString(),
-                studios = StudioConnection(nodes = listOf(Studio("Mappa"))),
-                coverImage = MediaCoverImage(null)
-            ) to Bookmark(
-                id = 1,
-                bookmark = "Watching",
-                isFavorite = true
+                Bookmark(
+                    id = 1,
+                    bookmark = BookmarkTypes.WATCHING.name,
+                    isFavorite = true
+                )
             ),
-            Anime(
-                id = 2,
-                title = Titles(
-                    romaji = "Other Anime"
+            AnimeBookmarkPair(
+                Anime(
+                    id = 2,
+                    title = Titles(
+                        romaji = "Other Anime"
+                    ),
+                    description = "Other Anime Description",
+                    episodes = 11,
+                    isAdult = false,
+                    trending = 12,
+                    genres = listOf("Action", "Adventure"),
+                    meanScore = 3,
+                    status = MediaStatus.FINISHED.toString(),
+                    studios = StudioConnection(nodes = listOf(Studio("MadHouse"))),
+                    coverImage = MediaCoverImage(null)
                 ),
-                description = "Other Anime Description",
-                episodes = 11,
-                isAdult = false,
-                trending = 12,
-                genres = listOf("Action", "Adventure"),
-                meanScore = 3,
-                status = MediaStatus.FINISHED.toString(),
-                studios = StudioConnection(nodes = listOf(Studio("MadHouse"))),
-                coverImage = MediaCoverImage(null)
-            ) to Bookmark(
-                id = 1,
-                bookmark = "Watched",
-                isFavorite = false
+                Bookmark(
+                    id = 1,
+                    bookmark = BookmarkTypes.WATCHED.name,
+                    isFavorite = false
+                )
             ),
         ),
-        onShowMoreOptions = {  }
+        onShowMoreOptions = { }
     )
 }

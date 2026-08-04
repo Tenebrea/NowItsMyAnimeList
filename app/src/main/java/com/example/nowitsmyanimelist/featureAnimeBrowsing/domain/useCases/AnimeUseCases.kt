@@ -4,6 +4,6 @@ data class AnimeUseCases(
     val getAnime: GetAnimeUseCase,
     val getAnnouncedAnime: GetAnnouncedAnimeUseCase,
     val getOngoingAnime: GetOngoingAnimeUseCase,
-    val getTrendingAnime: GetTrendingAnime,
+    val getTrendingAnime: GetTrendingAnimeUseCase,
     val getFinishedAnime: GetFinishedAnimeUseCase
 )

@@ -5,7 +5,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 
-class GetTrendingAnime(
+class GetTrendingAnimeUseCase(
     private val repository: AnimeRepository
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)

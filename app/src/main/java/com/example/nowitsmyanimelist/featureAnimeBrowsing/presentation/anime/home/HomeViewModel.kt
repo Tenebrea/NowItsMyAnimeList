@@ -8,8 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nowitsmyanimelist.PAGE_JUMP
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.MediaStatus
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeUseCases
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.BookmarkUseCases
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetBookmarkUseCase
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.AnimeBookmarkPair
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +24,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    val repository: AnimeUseCases
+    val animeRepository: AnimeUseCases,
+    val bookmarkRepository: BookmarkUseCases
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
@@ -29,7 +36,7 @@ class HomeViewModel(
     private var job: Job? = null
 
     init {
-        getAnimeByTab(_uiState.value.currentTab)
+        getAnimeByTab(HomeTab.ONGOING)
     }
 
     fun onEvent(event: HomeEvent) {
@@ -37,8 +44,19 @@ class HomeViewModel(
             is HomeEvent.GetAnime -> {
                 updatePages(_uiState.value.currentTab)
             }
+
             is HomeEvent.ChangeTab -> {
                 _uiState.update { it.copy(currentTab = event.tab) }
+                getAnimeByTab(_uiState.value.currentTab)
+            }
+
+            is HomeEvent.UpdateBottomSheet -> {
+                _uiState.update { it.copy(bottomSheetShown = !it.bottomSheetShown) }
+                if (_uiState.value.bottomSheetShown) {
+                    _uiState.update { it.copy(bottomSheetAnime = event.anime) }
+                } else {
+                    _uiState.update { it.copy(bottomSheetAnime = null) }
+                }
             }
         }
     }
@@ -56,57 +74,75 @@ class HomeViewModel(
         job?.cancel()
         job = when (tab) {
             HomeTab.ONGOING -> {
-                viewModelScope.launch {
-                    repository.getOngoingAnime(ongoingPage, _uiState.value.allowAdult).collect { animeList ->
-                        val newList = _uiState.value.displayedAnimeLists as MutableMap
-                        newList[HomeTab.ONGOING] = animeList
-                        _uiState.update { state ->
-                            state.copy(
-                                displayedAnimeLists = newList
-                            )
+                viewModelScope.launch(Dispatchers.IO) {
+                    animeRepository.getOngoingAnime(ongoingPage, _uiState.value.allowAdult)
+                        .collect { animeList ->
+                            val newList = _uiState.value.displayedAnimeLists.toMutableMap().apply {
+                                this[HomeTab.ONGOING] = animeBookmarkMapper(animeList)
+                            }
+                            _uiState.update { state ->
+                                state.copy(
+                                    displayedAnimeLists = newList
+                                )
+                            }
                         }
-                    }
                 }
             }
+
             HomeTab.ANNOUNCED -> {
-                viewModelScope.launch {
-                    repository.getAnnouncedAnime(announcedPage, _uiState.value.allowAdult).collect { animeList ->
-                        val newList = _uiState.value.displayedAnimeLists as MutableMap
-                        newList[HomeTab.ANNOUNCED] = animeList
-                        _uiState.update { state ->
-                            state.copy(
-                                displayedAnimeLists = newList
-                            )
+                viewModelScope.launch(Dispatchers.IO) {
+                    animeRepository.getAnnouncedAnime(announcedPage, _uiState.value.allowAdult)
+                        .collect { animeList ->
+                            val newList = _uiState.value.displayedAnimeLists.toMutableMap().apply {
+                                this[HomeTab.ANNOUNCED] = animeBookmarkMapper(animeList)
+                            }
+                            _uiState.update { state ->
+                                state.copy(
+                                    displayedAnimeLists = newList
+                                )
+                            }
                         }
-                    }
                 }
             }
+
             HomeTab.FINISHED -> {
-                viewModelScope.launch {
-                    repository.getFinishedAnime(finishedPage, _uiState.value.allowAdult).collect { animeList ->
-                        val newList = _uiState.value.displayedAnimeLists as MutableMap
-                        newList[HomeTab.FINISHED] = animeList
-                        _uiState.update { state ->
-                            state.copy(
-                                displayedAnimeLists = newList
-                            )
+                viewModelScope.launch(Dispatchers.IO) {
+                    animeRepository.getFinishedAnime(finishedPage, _uiState.value.allowAdult)
+                        .collect { animeList ->
+                            val newList = _uiState.value.displayedAnimeLists.toMutableMap().apply {
+                                this[HomeTab.FINISHED] = animeBookmarkMapper(animeList)
+                            }
+                            _uiState.update { state ->
+                                state.copy(
+                                    displayedAnimeLists = newList
+                                )
+                            }
                         }
-                    }
                 }
             }
+
             HomeTab.TRENDING -> {
-                viewModelScope.launch {
-                    repository.getTrendingAnime(trendingPage, _uiState.value.allowAdult).collect { animeList ->
-                        val newList = _uiState.value.displayedAnimeLists as MutableMap
-                        newList[HomeTab.TRENDING] = animeList
-                        _uiState.update { state ->
-                            state.copy(
-                                displayedAnimeLists = newList
-                            )
+                viewModelScope.launch(Dispatchers.IO) {
+                    animeRepository.getTrendingAnime(trendingPage, _uiState.value.allowAdult)
+                        .collect { animeList ->
+                            val newList = _uiState.value.displayedAnimeLists.toMutableMap().apply {
+                                this[HomeTab.TRENDING] = animeBookmarkMapper(animeList)
+                            }
+                            _uiState.update { state ->
+                                state.copy(
+                                    displayedAnimeLists = newList
+                                )
+                            }
                         }
-                    }
                 }
             }
         }
+    }
+
+    private fun animeBookmarkMapper(animeList: List<Anime>): List<AnimeBookmarkPair> {
+        val animeBookmarkPairs = animeList
+            .map { anime -> AnimeBookmarkPair(anime, bookmarkRepository.getBookmark(anime.id)) }
+
+        return animeBookmarkPairs
     }
 }

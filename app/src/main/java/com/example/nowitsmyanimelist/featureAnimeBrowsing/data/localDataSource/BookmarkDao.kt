@@ -3,6 +3,7 @@ package com.example.nowitsmyanimelist.featureAnimeBrowsing.data.localDataSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
 import kotlinx.coroutines.flow.Flow
@@ -13,9 +14,9 @@ interface BookmarkDao {
     fun getBookmarksByType(type: String): Flow<List<Bookmark>>
 
     @Query("SELECT * FROM bookmark WHERE id = :id")
-    fun getBookmarkById(id: Int): Bookmark
+    fun getBookmarkById(id: Int): Bookmark?
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookmark(bookmark: Bookmark)
 
     @Delete
