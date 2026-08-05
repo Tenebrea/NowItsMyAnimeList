@@ -52,10 +52,29 @@ class HomeViewModel(
 
             is HomeEvent.UpdateBottomSheet -> {
                 _uiState.update { it.copy(bottomSheetShown = !it.bottomSheetShown) }
-                if (_uiState.value.bottomSheetShown) {
-                    _uiState.update { it.copy(bottomSheetAnime = event.anime) }
-                } else {
-                    _uiState.update { it.copy(bottomSheetAnime = null) }
+            }
+            is HomeEvent.OpenDialog -> {
+                _uiState.update { it.copy(bottomSheetShown = !it.bottomSheetShown) }
+
+                viewModelScope.launch {
+                    _uiState.update {
+                        it.copy(
+                            dialogBookmark = bookmarkRepository.getBookmark(event.anime.id)
+                        )
+                    }
+                }.invokeOnCompletion {
+                    _uiState.update {
+                        it.copy(
+                            bookmarkDialogShown = true
+                        )
+                    }
+                }
+            }
+            is HomeEvent.DismissDialog -> {
+                _uiState.update {
+                    it.copy(
+                        bookmarkDialogShown = false
+                    )
                 }
             }
         }

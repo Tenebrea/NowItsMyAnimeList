@@ -10,7 +10,7 @@ class GetFinishedAnimeUseCase(
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(startingPage: Flow<Int>, allowAdult: Boolean) = repository
-        .getAnnouncedAnime(startingPage)
+        .getFinishedAnime(startingPage)
         .mapLatest { anime ->
             anime.filter { if (!allowAdult) !it.isAdult else true }
         }

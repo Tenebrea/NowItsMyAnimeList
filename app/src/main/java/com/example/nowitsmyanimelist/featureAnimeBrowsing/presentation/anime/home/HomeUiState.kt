@@ -20,4 +20,6 @@ data class HomeUiState(
     val searchString: String = "",
     val allowAdult: Boolean = false,
     val bottomSheetShown: Boolean = false,
+    val bookmarkDialogShown: Boolean = false,
+    val dialogBookmark: Bookmark? = null
 )

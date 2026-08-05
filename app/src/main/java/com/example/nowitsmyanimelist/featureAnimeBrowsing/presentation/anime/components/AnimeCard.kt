@@ -176,7 +176,7 @@ fun AnimeDescription(
                 )
             } else {
                 Text(
-                    text = if (anime.status != MediaStatus.FINISHED.name) "${anime.episodes} out of ? ep" else "${anime.episodes} ep",
+                    text = "${anime.episodes} ep",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onBackground
 

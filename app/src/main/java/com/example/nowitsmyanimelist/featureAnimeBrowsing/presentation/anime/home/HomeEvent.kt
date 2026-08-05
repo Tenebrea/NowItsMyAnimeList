@@ -9,4 +9,6 @@ sealed interface HomeEvent {
     object GetAnime: HomeEvent
     data class ChangeTab(val tab: HomeTab): HomeEvent
     data class UpdateBottomSheet(val anime: Anime): HomeEvent
+    data class OpenDialog(val anime: Anime): HomeEvent
+    object DismissDialog: HomeEvent
 }
