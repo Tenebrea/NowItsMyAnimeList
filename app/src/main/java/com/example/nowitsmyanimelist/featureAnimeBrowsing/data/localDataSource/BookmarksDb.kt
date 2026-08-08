@@ -3,6 +3,7 @@ package com.example.nowitsmyanimelist.featureAnimeBrowsing.data.localDataSource
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
 
 @Database(entities = [Bookmark::class], version = 1, exportSchema = false)

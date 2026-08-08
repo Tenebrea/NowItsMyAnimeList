@@ -6,7 +6,7 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories.Bo
 class GetBookmarkUseCase(
     private val repository: BookmarkRepository
 ) {
-    operator fun invoke(id: Int): Bookmark? {
+    suspend operator fun invoke(id: Int): Bookmark? {
         return repository.getBookmarkById(id)
     }
 }

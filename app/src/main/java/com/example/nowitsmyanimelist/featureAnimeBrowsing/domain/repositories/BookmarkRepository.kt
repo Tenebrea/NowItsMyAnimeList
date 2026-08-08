@@ -13,5 +13,5 @@ interface BookmarkRepository {
     fun getAbandoned(): Flow<List<Bookmark>>
     fun updateBookmark(bookmark: Bookmark)
     fun deleteBookmark(bookmark: Bookmark)
-    fun getBookmarkById(id: Int): Bookmark?
+    suspend fun getBookmarkById(id: Int): Bookmark?
 }

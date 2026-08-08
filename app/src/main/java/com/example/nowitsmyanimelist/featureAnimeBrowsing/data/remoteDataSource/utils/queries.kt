@@ -16,6 +16,7 @@ query {
       genres
       isAdult
       meanScore
+      status
       studios(isMain: true) {
         nodes {
           name

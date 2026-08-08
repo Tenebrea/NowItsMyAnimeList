@@ -81,7 +81,7 @@ fun AnimeDetails(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = anime.title.romaji ?: "Unknown",
+            text = anime.title,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.titleMedium

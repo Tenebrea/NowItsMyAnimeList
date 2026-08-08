@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeBottomSheet
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeList
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeTabs
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
@@ -55,19 +56,31 @@ fun AnimeHomeScreen(
                         }
                     )
                 ) { args ->
-                    val tab = HomeTab.entries.find { it.name == args.arguments?.getString("tabType") }
-                    AnimeList(
-                        animeBookmarkPairs = uiState.value.displayedAnimeLists[tab] ?: emptyList(),
-                        onShowMoreOptions = { anime ->
-                            viewModel.onEvent(
-                                HomeEvent.UpdateBottomSheet(
-                                    anime
+                    val tabString = args.arguments?.getString("tabType")
+                    if (tabString != null) {
+                        val tab = HomeTab.valueOf(tabString)
+                        AnimeList(
+                            animeBookmarkPairs = uiState.value.animeLists[tab]!!,
+                            onShowMoreOptions = { pair ->
+                                viewModel.onEvent(
+                                    HomeEvent.UpdateBottomSheet(
+                                        pair
+                                    )
                                 )
-                            )
-                        },
-                        modifier = Modifier
-                    )
+                            },
+                            modifier = Modifier
+                        )
+                    }
                 }
+            }
+            
+            if (uiState.value.bottomSheetShown) {
+                AnimeBottomSheet(
+                    pair = TODO(),
+                    onDismiss = TODO(),
+                    onFavorite = TODO(),
+                    onAddBookmark = TODO()
+                )
             }
         }
     }

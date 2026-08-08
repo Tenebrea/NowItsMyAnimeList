@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.mapLatest
 class GetOngoingAnimeUseCase(
     private val repository: AnimeRepository
 ) {
-    @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke(startingPage: Flow<Int>, allowAdult: Boolean) =
+    suspend operator fun invoke(startingPage: Int) =
         repository.getOngoingAnime(startingPage)
-            .mapLatest { anime -> anime.filter{ if (!allowAdult) !it.isAdult else true } }
 }

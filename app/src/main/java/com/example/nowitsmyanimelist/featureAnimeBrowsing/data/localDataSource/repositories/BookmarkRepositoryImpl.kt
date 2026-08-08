@@ -43,7 +43,7 @@ class BookmarkRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override fun getBookmarkById(id: Int): Bookmark? {
+    override suspend fun getBookmarkById(id: Int): Bookmark? {
         return dao.getBookmarkById(id)
     }
 }

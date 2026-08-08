@@ -40,24 +40,20 @@ import com.example.nowitsmyanimelist.R
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.MediaStatus
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.MediaCoverImage
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.StudioConnection
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Titles
-
 @Composable
 fun AnimeCard(
     modifier: Modifier = Modifier,
     anime: Anime,
     bookmark: Bookmark?,
-    onShowMoreOptions: (Anime) -> Unit,
+    onShowMoreOptions: () -> Unit,
     isFavorite: Boolean
 ) {
     Row(
         modifier = modifier,
     ) {
         AnimeImage(
-            model = anime.coverImage.medium,
-            contentDescription = anime.title.romaji,
+            model = anime.coverImage,
+            contentDescription = anime.title,
             bookmark = bookmark,
             modifier = Modifier
                 .width(96.dp)
@@ -69,7 +65,7 @@ fun AnimeCard(
             modifier = Modifier.fillMaxWidth(),
             anime = anime,
             isFavorite = isFavorite,
-            onShowMoreOptions = { onShowMoreOptions(anime) }
+            onShowMoreOptions = { onShowMoreOptions() }
         )
     }
 }
@@ -82,7 +78,7 @@ fun AnimeImage(
     bookmark: Bookmark?
 ) {
     Box(modifier = modifier) {
-        if (model != null) {
+        if (model != "") {
             AsyncImage(
                 modifier = Modifier
                     .matchParentSize(),
@@ -149,7 +145,7 @@ fun AnimeDescription(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = anime.title.romaji ?: "",
+                text = anime.title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -219,9 +215,7 @@ fun AnimeCardPreview() {
     AnimeCard(
         anime = Anime(
             id = 1,
-            title = Titles(
-                romaji = "Naruto"
-            ),
+            title = "Naruto",
             description = "Some description",
             episodes = 12,
             isAdult = false,
@@ -229,8 +223,8 @@ fun AnimeCardPreview() {
             genres = listOf("Action", "Adventure"),
             meanScore = 6,
             status = MediaStatus.NOT_YET_RELEASED.name,
-            studios = null,
-            coverImage = MediaCoverImage(null)
+            studios = listOf("Mappa"),
+            coverImage = ""
         ),
         bookmark = Bookmark(12, BookmarkTypes.WATCHED.name, true),
         isFavorite = true,

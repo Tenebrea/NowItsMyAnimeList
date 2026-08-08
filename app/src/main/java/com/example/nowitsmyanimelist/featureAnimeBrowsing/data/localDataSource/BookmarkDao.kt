@@ -14,7 +14,7 @@ interface BookmarkDao {
     fun getBookmarksByType(type: String): Flow<List<Bookmark>>
 
     @Query("SELECT * FROM bookmark WHERE id = :id")
-    fun getBookmarkById(id: Int): Bookmark?
+    suspend fun getBookmarkById(id: Int): Bookmark?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookmark(bookmark: Bookmark)

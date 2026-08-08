@@ -7,9 +7,6 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.animeById
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.animeListByStatusQuery
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.GraphQlRequest
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.GraphQlResponse
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.PageResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -24,7 +21,7 @@ class AnimeApi(
         startingPage: Int,
         status: MediaStatus,
         sort: SortType
-    ): List<Anime> {
+    ): List<AnimeDto> {
         return try {
             Log.d("AnimeApi", "Fetching page $startingPage with status $status")
             val query = animeListByStatusQuery
@@ -39,8 +36,6 @@ class AnimeApi(
                         )
                     )
                 }.body()
-            Log.d("AnimeApi", "Received ${response.data?.Page?.media?.size ?: 0} items")
-
             response.data?.Page?.media ?: emptyList()
         } catch (e: Exception) {
             Log.e("AnimeApi", "Error fetching anime", e)

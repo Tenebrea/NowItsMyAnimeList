@@ -4,5 +4,6 @@ enum class MediaStatus {
     RELEASING,
     FINISHED,
     NOT_YET_RELEASED,
-    CANCELLED
+    CANCELLED,
+    HIATUS
 }
