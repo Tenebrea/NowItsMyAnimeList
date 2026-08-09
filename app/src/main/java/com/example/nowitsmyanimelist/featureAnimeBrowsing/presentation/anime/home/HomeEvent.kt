@@ -9,6 +9,11 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.uti
 sealed interface HomeEvent {
     data class ChangeTab(val tab: HomeTab): HomeEvent
     data class UpdateBottomSheet(val pair: AnimeBookmarkPair): HomeEvent
+    // Явные события закрытия и действий делают смену состояния предсказуемой вместо инверсии Boolean.
+    data object DismissBottomSheet: HomeEvent
+    data class ToggleFavorite(val pair: AnimeBookmarkPair): HomeEvent
     data class OpenDialog(val anime: Anime): HomeEvent
+    // null означает, что пользователь выбрал вариант «не добавлено в список».
+    data class ChangeBookmark(val type: BookmarkTypes?): HomeEvent
     object DismissDialog: HomeEvent
 }

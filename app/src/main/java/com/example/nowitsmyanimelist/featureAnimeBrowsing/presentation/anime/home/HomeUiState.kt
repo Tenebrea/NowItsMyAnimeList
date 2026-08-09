@@ -18,6 +18,8 @@ data class HomeUiState(
     val searchString: String = "",
     val allowAdult: Boolean = false,
     val bottomSheetShown: Boolean = false,
+    // Одного флага видимости недостаточно: sheet должен знать, какой элемент изменяют его действия.
+    val selectedPair: AnimeBookmarkPair? = null,
     val animeLists: Map<HomeTab, Flow<PagingData<AnimeBookmarkPair>>> = emptyMap(),
     val bookmarkDialogShown: Boolean = false,
     val dialogBookmark: Bookmark? = null

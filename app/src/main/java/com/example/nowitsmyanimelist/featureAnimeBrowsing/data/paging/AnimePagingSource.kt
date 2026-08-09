@@ -17,7 +17,8 @@ class AnimePagingSource(
 ) : PagingSource<Int, Anime>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Anime> {
         return try {
-            val pageNumber = if (params.key != null) params.key!! + 1 else 1
+            // Paging уже передаёт следующую страницу в key; повторный инкремент пропускает страницы.
+            val pageNumber = params.key ?: 1
 
             val response = when (homeTab) {
                 HomeTab.TRENDING ->
@@ -33,7 +34,8 @@ class AnimePagingSource(
             LoadResult.Page(
                 data = response,
                 prevKey = null,
-                nextKey = pageNumber + 1
+                // null сообщает Paging о конце списка и предотвращает бесконечные пустые запросы.
+                nextKey = if (response.isEmpty()) null else pageNumber + 1
             )
         } catch (e: IOException) {
             LoadResult.Error(e)

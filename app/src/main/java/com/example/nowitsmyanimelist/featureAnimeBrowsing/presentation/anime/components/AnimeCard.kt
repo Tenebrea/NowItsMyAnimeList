@@ -226,7 +226,8 @@ fun AnimeCardPreview() {
             studios = listOf("Mappa"),
             coverImage = ""
         ),
-        bookmark = Bookmark(12, BookmarkTypes.WATCHED.name, true),
+        // Закладка в preview должна ссылаться на то же аниме, чтобы корректно моделировать реальные данные.
+        bookmark = Bookmark(12, BookmarkTypes.WATCHED.name, true, animeId = 1),
         isFavorite = true,
         onShowMoreOptions = {}
     )

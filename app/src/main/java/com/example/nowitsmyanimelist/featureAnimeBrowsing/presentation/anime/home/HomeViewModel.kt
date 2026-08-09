@@ -40,11 +40,34 @@ class HomeViewModel(
                 changeTab(event.tab)
             }
             is HomeEvent.UpdateBottomSheet -> {
-                _uiState.update { it.copy(bottomSheetShown = !it.bottomSheetShown) }
+                // Сохраняем выбранный элемент вместе с флагом, чтобы действия sheet имели безопасную цель.
+                _uiState.update { it.copy(bottomSheetShown = true, selectedPair = event.pair) }
+            }
+            HomeEvent.DismissBottomSheet -> {
+                _uiState.update { it.copy(bottomSheetShown = false, selectedPair = null) }
+            }
+            is HomeEvent.ToggleFavorite -> {
+                viewModelScope.launch {
+                    // Избранное может существовать без статуса списка, поэтому при необходимости создаём строку.
+                    val current = event.pair.bookmark
+                    val updated = current?.copy(isFavorite = !current.isFavorite)
+                        ?: com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark(
+                            id = event.pair.anime.id.toLong(),
+                            bookmark = null,
+                            isFavorite = true,
+                            animeId = event.pair.anime.id
+                        )
+                    bookmarkRepository.updateBookmark(updated)
+                    // Обновляем содержимое sheet сразу, не ожидая обновления Paging.
+                    _uiState.update {
+                        it.copy(selectedPair = event.pair.copy(bookmark = updated))
+                    }
+                }
             }
 
             is HomeEvent.OpenDialog -> {
-                _uiState.update { it.copy(bottomSheetShown = !it.bottomSheetShown) }
+                // Модальные sheet и dialog не должны оставаться видимыми друг поверх друга.
+                _uiState.update { it.copy(bottomSheetShown = false) }
 
                 viewModelScope.launch {
                     _uiState.update {
@@ -61,10 +84,42 @@ class HomeViewModel(
                 }
             }
 
+            is HomeEvent.ChangeBookmark -> {
+                // Без выбранного аниме невозможно выполнить корректное изменение базы данных.
+                val selectedPair = _uiState.value.selectedPair ?: return
+                viewModelScope.launch {
+                    val current = bookmarkRepository.getBookmark(selectedPair.anime.id)
+                    val updated = current?.copy(bookmark = event.type?.name)
+                        ?: event.type?.let {
+                            com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark(
+                                id = selectedPair.anime.id.toLong(),
+                                bookmark = it.name,
+                                isFavorite = false,
+                                animeId = selectedPair.anime.id
+                            )
+                        }
+
+                    // Удаляем пустую строку, но сохраняем её, если аниме всё ещё отмечено как избранное.
+                    when {
+                        updated == null -> Unit
+                        updated.bookmark == null && !updated.isFavorite ->
+                            bookmarkRepository.deleteBookmark(updated)
+                        else -> bookmarkRepository.updateBookmark(updated)
+                    }
+                    _uiState.update {
+                        it.copy(
+                            bookmarkDialogShown = false,
+                            selectedPair = null
+                        )
+                    }
+                }
+            }
+
             is HomeEvent.DismissDialog -> {
                 _uiState.update {
                     it.copy(
-                        bookmarkDialogShown = false
+                        bookmarkDialogShown = false,
+                        selectedPair = null
                     )
                 }
             }

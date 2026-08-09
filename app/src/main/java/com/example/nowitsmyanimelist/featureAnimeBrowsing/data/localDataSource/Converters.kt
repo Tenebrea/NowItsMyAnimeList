@@ -8,5 +8,6 @@ class Converters {
     fun convertListToJSONString(list: List<String>): String = Json.encodeToString(list)
 
     @TypeConverter
-    fun convertJSONStringToList(string: String): String = Json.decodeFromString(string)
+    // Room нужен точный обратный тип для List<String> -> String, чтобы восстановить поля сущности.
+    fun convertJSONStringToList(string: String): List<String> = Json.decodeFromString(string)
 }
