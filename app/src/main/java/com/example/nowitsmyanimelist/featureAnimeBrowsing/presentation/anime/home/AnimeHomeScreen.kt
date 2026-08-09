@@ -21,6 +21,7 @@ import androidx.navigation.navArgument
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeBottomSheet
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeList
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeTabs
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.BookmarkDialog
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
 import com.example.nowitsmyanimelist.ui.theme.NowItsMyAnimeListTheme
 
@@ -74,18 +75,28 @@ fun AnimeHomeScreen(
                 }
             }
             
-            if (uiState.value.bottomSheetShown) {
+            // Отображаем sheet только при наличии флага и данных, чтобы исключить падения из-за TODO()/null.
+            val selectedPair = uiState.value.selectedPair
+            if (uiState.value.bottomSheetShown && selectedPair != null) {
                 AnimeBottomSheet(
-                    pair = TODO(),
-                    onDismiss = TODO(),
-                    onFavorite = TODO(),
-                    onAddBookmark = TODO()
+                    pair = selectedPair,
+                    onDismiss = { viewModel.onEvent(HomeEvent.DismissBottomSheet) },
+                    onFavorite = { viewModel.onEvent(HomeEvent.ToggleFavorite(it)) },
+                    onAddBookmark = { viewModel.onEvent(HomeEvent.OpenDialog(it.anime)) }
+                )
+            }
+            // Сохранение остаётся во ViewModel, а composable только преобразует UI-callback в события.
+            if (uiState.value.bookmarkDialogShown) {
+                BookmarkDialog(
+                    bookmark = uiState.value.dialogBookmark,
+                    onBookmarkChange = { viewModel.onEvent(HomeEvent.ChangeBookmark(it)) },
+                    onDismissRequest = { viewModel.onEvent(HomeEvent.DismissDialog) }
                 )
             }
         }
     }
 }
-
+//советую использовать @PreviewLightAndDark
 @Preview
 @Composable
 fun HomeScreenPreview() {

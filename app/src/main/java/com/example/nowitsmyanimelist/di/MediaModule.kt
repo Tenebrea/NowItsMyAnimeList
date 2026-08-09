@@ -15,6 +15,8 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetBoo
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetFinishedAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetOngoingAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetTrendingAnimeUseCase
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.UpdateBookmarkUseCase
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.DeleteBookmarkUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.home.HomeViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -60,6 +62,9 @@ val mediaModule = module {
     single {
         GetTrendingAnimeUseCase(get())
     }
+    // Операции изменения вынесены в use case, чтобы presentation-слой не зависел от Room.
+    single { UpdateBookmarkUseCase(get()) }
+    single { DeleteBookmarkUseCase(get()) }
     single {
         AnimeUseCases(
             get(),
@@ -69,8 +74,11 @@ val mediaModule = module {
             get()
         )
     }
+    // Связанные операции с закладками объединены в одну зависимость для HomeViewModel.
     single {
         BookmarkUseCases(
+            get(),
+            get(),
             get()
         )
     }

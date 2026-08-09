@@ -19,11 +19,14 @@ abstract class BookmarksDb : RoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
 
     companion object {
+        // Общее имя не позволяет DI и старой фабрике случайно открыть разные базы данных.
+        const val DATABASE_NAME = "bookmarks.db"
+
         @Volatile
         private var instance: BookmarksDb? = null
         fun getInstance(context: Context): BookmarksDb {
             if (instance==null) {
-                instance = Room.databaseBuilder(context, BookmarksDb::class.java,"bookmarks.db")
+                instance = Room.databaseBuilder(context, BookmarksDb::class.java, DATABASE_NAME)
                     .allowMainThreadQueries()
                     .build()
             }

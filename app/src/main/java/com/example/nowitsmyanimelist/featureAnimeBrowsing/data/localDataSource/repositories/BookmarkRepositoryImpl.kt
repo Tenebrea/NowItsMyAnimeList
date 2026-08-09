@@ -7,43 +7,46 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories.Bo
 import kotlinx.coroutines.flow.Flow
 
 class BookmarkRepositoryImpl(
-    val dao: BookmarkDao
+    // Детали хранения данных должны оставаться внутри реализации репозитория.
+    private val dao: BookmarkDao
 ) : BookmarkRepository {
     override fun getFavorites(): Flow<List<Bookmark>> {
-        TODO("Not yet implemented")
+        return dao.getFavorites()
     }
 
     override fun getWatching(): Flow<List<Bookmark>> {
-        TODO("Not yet implemented")
+        return dao.getBookmarksByType(BookmarkTypes.WATCHING.name)
     }
 
     override fun getPlanned(): Flow<List<Bookmark>> {
-        TODO("Not yet implemented")
+        return dao.getBookmarksByType(BookmarkTypes.PLANNED.name)
     }
 
     override fun getAlreadyWatched(): Flow<List<Bookmark>> {
-        TODO("Not yet implemented")
+        return dao.getBookmarksByType(BookmarkTypes.WATCHED.name)
     }
 
     override fun getDelayed(): Flow<List<Bookmark>> {
-        TODO("Not yet implemented")
+        return dao.getBookmarksByType(BookmarkTypes.DELAYED.name)
     }
 
     override fun getAbandoned(): Flow<List<Bookmark>> {
-        TODO("Not yet implemented")
+        return dao.getBookmarksByType(BookmarkTypes.ABANDONED.name)
     }
 
-    override fun updateBookmark(
+    // REPLACE позволяет одной операцией и создавать, и изменять закладку.
+    override suspend fun updateBookmark(
         bookmark: Bookmark
     ) {
-        TODO("Not yet implemented")
+        dao.insertBookmark(bookmark)
     }
 
-    override fun deleteBookmark(bookmark: Bookmark) {
-        TODO("Not yet implemented")
+    override suspend fun deleteBookmark(bookmark: Bookmark) {
+        dao.deleteBookmark(bookmark)
     }
 
+    // Вызывающий код передаёт ID аниме — именно этот внешний идентификатор используется в UI.
     override suspend fun getBookmarkById(id: Int): Bookmark? {
-        return dao.getBookmarkById(id)
+        return dao.getBookmarkByAnimeId(id)
     }
 }
