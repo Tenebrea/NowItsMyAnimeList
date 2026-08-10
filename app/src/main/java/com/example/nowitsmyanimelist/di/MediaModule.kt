@@ -2,6 +2,7 @@ package com.example.nowitsmyanimelist.di
 
 import androidx.room.Room
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.localDataSource.BookmarksDb
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.localDataSource.MIGRATION_1_2
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.localDataSource.repositories.BookmarkRepositoryImpl
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.networkModule
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.repositories.AnimeRepositoryImpl
@@ -33,7 +34,9 @@ val mediaModule = module {
             get(),
             BookmarksDb::class.java,
             BookmarksDb.DATABASE_NAME
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     single {

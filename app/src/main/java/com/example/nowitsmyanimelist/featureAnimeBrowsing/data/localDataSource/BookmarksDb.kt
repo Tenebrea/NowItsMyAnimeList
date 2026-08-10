@@ -11,8 +11,8 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
 
 @Database(
     entities = [Bookmark::class, Anime::class],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    exportSchema = true
 )
 @TypeConverters(value = [Converters::class])
 abstract class BookmarksDb : RoomDatabase() {

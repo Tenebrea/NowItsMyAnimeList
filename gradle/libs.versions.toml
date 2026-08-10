@@ -51,8 +51,9 @@ koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-test = { module = "io.insert-koin:koin-test" }
 
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }
-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.2.1" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "roomVersion" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.2.1" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" , version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 material3-window-size = { module = "androidx.compose.material3:material3-window-size-class" }
@@ -67,3 +68,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "2.3.20" }
+room = { id = "androidx.room", version.ref = "roomVersion" }
