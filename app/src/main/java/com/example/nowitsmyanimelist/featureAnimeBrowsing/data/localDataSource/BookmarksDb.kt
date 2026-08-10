@@ -11,8 +11,8 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark
 
 @Database(
     entities = [Bookmark::class, Anime::class],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    exportSchema = true
 )
 @TypeConverters(value = [Converters::class])
 abstract class BookmarksDb : RoomDatabase() {
@@ -21,16 +21,5 @@ abstract class BookmarksDb : RoomDatabase() {
     companion object {
         // Общее имя не позволяет DI и старой фабрике случайно открыть разные базы данных.
         const val DATABASE_NAME = "bookmarks.db"
-
-        @Volatile
-        private var instance: BookmarksDb? = null
-        fun getInstance(context: Context): BookmarksDb {
-            if (instance==null) {
-                instance = Room.databaseBuilder(context, BookmarksDb::class.java, DATABASE_NAME)
-                    .allowMainThreadQueries()
-                    .build()
-            }
-            return  instance as BookmarksDb
-        }
     }
 }
