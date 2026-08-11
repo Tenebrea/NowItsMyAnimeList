@@ -78,13 +78,13 @@ fun AnimeList(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (lazyPagingItems.loadState.refresh is LoadState.NotLoading) {
+                        if (lazyPagingItems.loadState.append is LoadState.Error) {
                             Button(onClick = { lazyPagingItems.refresh() }) {
                                 Text(
                                     text = "Retry"
                                 )
                             }
-                        } else {
+                        } else if (lazyPagingItems.loadState.append is LoadState.Loading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.width(16.dp),
                                 color = MaterialTheme.colorScheme.secondary
