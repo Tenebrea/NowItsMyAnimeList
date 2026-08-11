@@ -67,6 +67,8 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
+    implementation(libs.koin.test)
+    implementation(libs.koin.test.junit)
     ksp(libs.room.compiler)
     implementation(libs.room.runtime)
     implementation(libs.datastore.preferences)

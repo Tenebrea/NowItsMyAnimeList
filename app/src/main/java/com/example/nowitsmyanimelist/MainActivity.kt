@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.home.AnimeHomeRoute
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.home.AnimeHomeScreen
 import com.example.nowitsmyanimelist.ui.theme.NowItsMyAnimeListTheme
 import org.koin.androidx.viewmodel.ext.android.getViewModel
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Surface {
-                AnimeHomeScreen(viewModel = getViewModel())
+                AnimeHomeRoute(getViewModel())
             }
         }
     }

@@ -22,24 +22,27 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.com
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeList
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.AnimeTabs
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.BookmarkDialog
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.ErrorScreen
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.components.LoadingScreen
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.LoadingState
 import com.example.nowitsmyanimelist.ui.theme.NowItsMyAnimeListTheme
 
 @Composable
 fun AnimeHomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel,
+    uiState: HomeUiState,
+    onEvent: (HomeEvent) -> Unit
 ) {
     val navController = rememberNavController()
-    val uiState = viewModel.uiState.collectAsState()
     Scaffold(modifier = modifier) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             AnimeTabs(
                 modifier = Modifier.fillMaxWidth(),
                 tabs = HomeTab.entries,
-                selectedIndex = uiState.value.currentTab.ordinal,
+                selectedIndex = uiState.currentTab.ordinal,
                 onTabSelected = {
-                    viewModel.onEvent(HomeEvent.ChangeTab(HomeTab.entries[it]))
+                    onEvent(HomeEvent.ChangeTab(HomeTab.entries[it]))
                     navController.navigate("HomeTab?tabType=${HomeTab.entries[it].name}")
                 }
             )
@@ -60,37 +63,52 @@ fun AnimeHomeScreen(
                     val tabString = args.arguments?.getString("tabType")
                     if (tabString != null) {
                         val tab = HomeTab.valueOf(tabString)
-                        AnimeList(
-                            animeBookmarkPairs = uiState.value.animeLists[tab]!!,
-                            onShowMoreOptions = { pair ->
-                                viewModel.onEvent(
-                                    HomeEvent.UpdateBottomSheet(
-                                        pair
-                                    )
+                        when (val state = uiState.animeLists[tab]) {
+                            is LoadingState.Done -> {
+                                AnimeList(
+                                    animeBookmarkPairs = state.pager,
+                                    onShowMoreOptions = { pair ->
+                                        onEvent(
+                                            HomeEvent.UpdateBottomSheet(
+                                                pair
+                                            )
+                                        )
+                                    },
+                                    onRefresh = { onEvent(HomeEvent.RefreshLoading) },
+                                    modifier = Modifier
                                 )
-                            },
-                            modifier = Modifier
-                        )
+                            }
+                            is LoadingState.Error -> {
+                                ErrorScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    message = state.message,
+                                    onRefresh = { onEvent(HomeEvent.RefreshLoading) }
+                                )
+                            }
+                            else -> {
+                                LoadingScreen(modifier = Modifier.fillMaxSize())
+                            }
+                        }
                     }
                 }
             }
             
             // Отображаем sheet только при наличии флага и данных, чтобы исключить падения из-за TODO()/null.
-            val selectedPair = uiState.value.selectedPair
-            if (uiState.value.bottomSheetShown && selectedPair != null) {
+            val selectedPair = uiState.selectedPair
+            if (uiState.bottomSheetShown && selectedPair != null) {
                 AnimeBottomSheet(
                     pair = selectedPair,
-                    onDismiss = { viewModel.onEvent(HomeEvent.DismissBottomSheet) },
-                    onFavorite = { viewModel.onEvent(HomeEvent.ToggleFavorite(it)) },
-                    onAddBookmark = { viewModel.onEvent(HomeEvent.OpenDialog(it.anime)) }
+                    onDismiss = { onEvent(HomeEvent.DismissBottomSheet) },
+                    onFavorite = { onEvent(HomeEvent.ToggleFavorite(it)) },
+                    onAddBookmark = { onEvent(HomeEvent.OpenDialog(it.anime)) }
                 )
             }
             // Сохранение остаётся во ViewModel, а composable только преобразует UI-callback в события.
-            if (uiState.value.bookmarkDialogShown) {
+            if (uiState.bookmarkDialogShown) {
                 BookmarkDialog(
-                    bookmark = uiState.value.dialogBookmark,
-                    onBookmarkChange = { viewModel.onEvent(HomeEvent.ChangeBookmark(it)) },
-                    onDismissRequest = { viewModel.onEvent(HomeEvent.DismissDialog) }
+                    bookmark = uiState.dialogBookmark,
+                    onBookmarkChange = { onEvent(HomeEvent.ChangeBookmark(it)) },
+                    onDismissRequest = { onEvent(HomeEvent.DismissDialog) }
                 )
             }
         }
@@ -101,6 +119,10 @@ fun AnimeHomeScreen(
 @Composable
 fun HomeScreenPreview() {
     NowItsMyAnimeListTheme {
-        AnimeHomeScreen(viewModel = viewModel())
+        AnimeHomeScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = HomeUiState(),
+            onEvent = {  }
+        )
     }
 }

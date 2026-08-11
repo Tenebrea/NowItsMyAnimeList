@@ -14,6 +14,7 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeU
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.BookmarkUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.AnimeBookmarkPair
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.LoadingState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -123,19 +124,40 @@ class HomeViewModel(
                     )
                 }
             }
+            is HomeEvent.RefreshLoading -> {
+                loadData(_uiState.value.currentTab)
+            }
         }
     }
 
     private fun changeTab(homeTab: HomeTab) {
-        val newList = _uiState.value.animeLists.toMutableMap()
-
         if (!_uiState.value.animeLists.containsKey(homeTab)) {
-            newList[homeTab] = pager(homeTab)
+            loadData(homeTab)
+        } else {
+            _uiState.update {
+                it.copy(
+                    currentTab = homeTab
+                )
+            }
         }
+    }
 
+    private fun loadData(homeTab: HomeTab) = viewModelScope.launch {
+        val newList = _uiState.value.animeLists.toMutableMap()
+        newList[homeTab] = LoadingState.Loading
         _uiState.update {
             it.copy(
-                currentTab = homeTab,
+                animeLists = newList,
+                currentTab = homeTab
+            )
+        }
+        try {
+            newList[homeTab] = LoadingState.Done(pager(homeTab))
+        } catch (e: Throwable) {
+            newList[homeTab] = LoadingState.Error(e.message)
+        }
+        _uiState.update {
+            it.copy(
                 animeLists = newList
             )
         }
