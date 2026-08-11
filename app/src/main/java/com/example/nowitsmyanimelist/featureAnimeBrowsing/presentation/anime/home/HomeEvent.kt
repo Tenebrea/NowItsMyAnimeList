@@ -16,4 +16,5 @@ sealed interface HomeEvent {
     // null означает, что пользователь выбрал вариант «не добавлено в список».
     data class ChangeBookmark(val type: BookmarkTypes?): HomeEvent
     object DismissDialog: HomeEvent
+    object RefreshLoading: HomeEvent
 }
