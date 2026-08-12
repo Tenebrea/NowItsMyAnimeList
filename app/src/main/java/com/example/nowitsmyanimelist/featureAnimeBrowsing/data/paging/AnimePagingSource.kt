@@ -1,11 +1,8 @@
 package com.example.nowitsmyanimelist.featureAnimeBrowsing.data.paging
 
-import android.provider.MediaStore
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import coil3.network.HttpException
-import com.example.nowitsmyanimelist.PAGE_JUMP
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.MediaStatus
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
@@ -33,7 +30,7 @@ class AnimePagingSource(
 
             LoadResult.Page(
                 data = response,
-                prevKey = null,
+                prevKey = if (pageNumber - 1 > 0) pageNumber - 1 else null,
                 // null сообщает Paging о конце списка и предотвращает бесконечные пустые запросы.
                 nextKey = if (response.isEmpty()) null else pageNumber + 1
             )
@@ -50,6 +47,4 @@ class AnimePagingSource(
                 ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
         }
     }
-
-
 }

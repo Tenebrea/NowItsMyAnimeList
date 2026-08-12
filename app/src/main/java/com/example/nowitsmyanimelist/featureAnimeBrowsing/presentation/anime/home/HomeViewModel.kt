@@ -4,21 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.nowitsmyanimelist.PAGE_JUMP
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.paging.AnimePagingSource
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.BookmarkUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.AnimeBookmarkPair
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.LoadingState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -127,15 +123,29 @@ class HomeViewModel(
     }
 
     private fun changeTab(homeTab: HomeTab) {
-        val newList = _uiState.value.animeLists.toMutableMap()
-
         if (!_uiState.value.animeLists.containsKey(homeTab)) {
-            newList[homeTab] = pager(homeTab)
+            loadData(homeTab)
+        } else {
+            _uiState.update {
+                it.copy(
+                    currentTab = homeTab
+                )
+            }
         }
+    }
 
+    private fun loadData(homeTab: HomeTab) = viewModelScope.launch {
+        val newList = _uiState.value.animeLists.toMutableMap()
+        newList[homeTab] = LoadingState.Loading
         _uiState.update {
             it.copy(
-                currentTab = homeTab,
+                animeLists = newList,
+                currentTab = homeTab
+            )
+        }
+        newList[homeTab] = LoadingState.Done(pager(homeTab))
+        _uiState.update {
+            it.copy(
                 animeLists = newList
             )
         }
