@@ -13,7 +13,13 @@ data class GraphQlRequest(
 
 @Serializable
 data class GraphQlResponse<T>(
-    val data: T?
+    val data: T?,
+    val errors: List<GraphQlError>? = null
+)
+
+@Serializable
+data class GraphQlError(
+    val message: String
 )
 
 @Serializable

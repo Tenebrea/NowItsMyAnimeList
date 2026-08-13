@@ -1,11 +1,15 @@
 package com.example.nowitsmyanimelist.featureAnimeBrowsing.data.paging
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import coil3.network.HttpException
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.GraphQlException
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.io.IOException
 
 class AnimePagingSource(
@@ -34,9 +38,17 @@ class AnimePagingSource(
                 // null сообщает Paging о конце списка и предотвращает бесконечные пустые запросы.
                 nextKey = if (response.isEmpty()) null else pageNumber + 1
             )
+        } catch (e: HttpRequestTimeoutException) {
+            Log.e("animePaging", "getAnime request reached timeout")
+            LoadResult.Error(GraphQlException(message = "Timeout. Please try again later"))
         } catch (e: IOException) {
-            LoadResult.Error(e)
-        } catch (e: HttpException) {
+            Log.e("animePaging", "getAnime request got IOException")
+            LoadResult.Error(GraphQlException(message = "IOException"))
+        } catch (e: UnresolvedAddressException) {
+            Log.e("animePaging", "Got UnresolvedAddressException")
+            LoadResult.Error(GraphQlException(message = "Connection error happened"))
+        } catch (e: GraphQlException) {
+            Log.e("animePaging", "GraphQlError with message ${e.message}")
             LoadResult.Error(e)
         }
     }

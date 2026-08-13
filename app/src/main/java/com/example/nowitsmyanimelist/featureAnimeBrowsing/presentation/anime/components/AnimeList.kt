@@ -31,7 +31,7 @@ fun AnimeList(
     val lazyPagingItems = animeBookmarkPairs.collectAsLazyPagingItems()
     val scrollState = rememberLazyListState()
     when (val refreshState = lazyPagingItems.loadState.refresh) {
-        is LoadState.Loading -> {
+        is LoadState.Loading if lazyPagingItems.itemCount == 0 -> {
             LoadingScreen(modifier = modifier)
         }
 
@@ -79,12 +79,13 @@ fun AnimeList(
                         contentAlignment = Alignment.Center
                     ) {
                         if (lazyPagingItems.loadState.append is LoadState.Error) {
-                            Button(onClick = { lazyPagingItems.refresh() }) {
+                            Button(onClick = { lazyPagingItems.retry() }) {
                                 Text(
                                     text = "Retry"
                                 )
                             }
-                        } else if (lazyPagingItems.loadState.append is LoadState.Loading) {
+                        } else if (lazyPagingItems.loadState.append is LoadState.Loading
+                            || refreshState is LoadState.Loading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.width(16.dp),
                                 color = MaterialTheme.colorScheme.secondary

@@ -1,14 +1,18 @@
 package com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource
 
 import android.util.Log
+import coil3.network.HttpException
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.BUILD_URL
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.MediaStatus
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.SortType
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.animeById
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.animeListByStatusQuery
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.GraphQlException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -36,10 +40,17 @@ class AnimeApi(
                         )
                     )
                 }.body()
+            response.errors
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { errors ->
+                    throw GraphQlException(
+                        errors.joinToString("\n") { it.message }
+                    )
+                }
             response.data?.Page?.media ?: emptyList()
         } catch (e: Exception) {
             Log.e("AnimeApi", "Error fetching anime", e)
-            emptyList()
+            throw e
         }
     }
 
