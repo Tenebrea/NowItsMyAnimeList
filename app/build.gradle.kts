@@ -77,6 +77,9 @@ dependencies {
 
     implementation(libs.paging.common)
     implementation(libs.paging.compose)
+    androidTestImplementation(libs.paging.common)
+    androidTestImplementation(libs.paging.compose)
+    androidTestImplementation(libs.paging.testing)
 
     testImplementation(libs.junit)
     // BOM нужно подключить и для androidTest: конфигурации Gradle не наследуют платформу
