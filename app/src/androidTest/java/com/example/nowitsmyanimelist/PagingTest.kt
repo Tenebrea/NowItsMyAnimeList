@@ -12,7 +12,6 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.paging.AnimePagin
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.data.remoteDataSource.utils.MediaStatus
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Anime
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeUseCases
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetAnnouncedAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetFinishedAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetOngoingAnimeUseCase
@@ -27,7 +26,6 @@ import org.junit.Test
 class PagingTest {
     val animeRepository = AnimeRepositoryMock()
     val animeUseCases: AnimeUseCases = AnimeUseCases(
-        getAnime = GetAnimeUseCase(animeRepository),
         getAnnouncedAnime = GetAnnouncedAnimeUseCase(animeRepository),
         getOngoingAnime = GetOngoingAnimeUseCase(animeRepository),
         getTrendingAnime = GetTrendingAnimeUseCase(animeRepository),
