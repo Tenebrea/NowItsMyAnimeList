@@ -10,7 +10,6 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories.An
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories.BookmarkRepository
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.BookmarkUseCases
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetAnnouncedAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetBookmarkUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetFinishedAnimeUseCase
@@ -46,10 +45,6 @@ val mediaModule = module {
     single<BookmarkRepository> {
         BookmarkRepositoryImpl(get())
     }
-
-    single {
-        GetAnimeUseCase(get())
-    }
     single {
         GetAnnouncedAnimeUseCase(get())
     }
@@ -70,7 +65,6 @@ val mediaModule = module {
     single { DeleteBookmarkUseCase(get()) }
     single {
         AnimeUseCases(
-            get(),
             get(),
             get(),
             get(),

@@ -16,9 +16,6 @@ import kotlinx.coroutines.flow.mapLatest
 class AnimeRepositoryImpl(
     private val api: AnimeApi
 ) : AnimeRepository {
-    override suspend fun getAnime(id: Int): Anime {
-        return api.getAnimeById(id)
-    }
 
     override suspend fun getOngoingAnime(startingPage: Int): List<Anime> = api
         .getAnime(startingPage, MediaStatus.RELEASING, SortType.POPULARITY_DESC)

@@ -8,22 +8,6 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.io.IOException
 
 class AnimeRepositoryMock : AnimeRepository {
-    override suspend fun getAnime(id: Int): Anime {
-        return Anime(
-            id = 1,
-            title = "Naruto",
-            description = "Some description",
-            episodes = 12,
-            isAdult = false,
-            trending = 14,
-            genres = listOf("Action", "Adventure"),
-            meanScore = 6,
-            status = MediaStatus.NOT_YET_RELEASED.name,
-            studios = listOf("Mappa"),
-            coverImage = ""
-        )
-    }
-
     override suspend fun getOngoingAnime(startingPage: Int): List<Anime> {
         throw HttpRequestTimeoutException(
             url = "",
