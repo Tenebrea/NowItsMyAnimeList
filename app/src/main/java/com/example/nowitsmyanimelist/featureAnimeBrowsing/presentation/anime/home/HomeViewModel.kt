@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.nowitsmyanimelist.PAGE_JUMP
@@ -13,8 +14,11 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.Bookma
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.AnimeBookmarkPair
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.LoadingState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -35,13 +39,16 @@ class HomeViewModel(
             is HomeEvent.ChangeTab -> {
                 changeTab(event.tab)
             }
+
             is HomeEvent.UpdateBottomSheet -> {
                 // Сохраняем выбранный элемент вместе с флагом, чтобы действия sheet имели безопасную цель.
                 _uiState.update { it.copy(bottomSheetShown = true, selectedPair = event.pair) }
             }
+
             HomeEvent.DismissBottomSheet -> {
                 _uiState.update { it.copy(bottomSheetShown = false, selectedPair = null) }
             }
+
             is HomeEvent.ToggleFavorite -> {
                 viewModelScope.launch {
                     // Избранное может существовать без статуса списка, поэтому при необходимости создаём строку.
@@ -65,10 +72,10 @@ class HomeViewModel(
                 // Модальные sheet и dialog не должны оставаться видимыми друг поверх друга.
                 _uiState.update { it.copy(bottomSheetShown = false) }
 
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     _uiState.update {
                         it.copy(
-                            dialogBookmark = bookmarkRepository.getBookmark(event.anime.id)
+                            dialogBookmark = bookmarkRepository.getBookmarkById(event.anime.id)
                         )
                     }
                 }.invokeOnCompletion {
@@ -83,8 +90,8 @@ class HomeViewModel(
             is HomeEvent.ChangeBookmark -> {
                 // Без выбранного аниме невозможно выполнить корректное изменение базы данных.
                 val selectedPair = _uiState.value.selectedPair ?: return
-                viewModelScope.launch {
-                    val current = bookmarkRepository.getBookmark(selectedPair.anime.id)
+                viewModelScope.launch(Dispatchers.IO) {
+                    val current = _uiState.value.dialogBookmark
                     val updated = current?.copy(bookmark = event.type?.name)
                         ?: event.type?.let {
                             com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.models.Bookmark(
@@ -100,12 +107,13 @@ class HomeViewModel(
                         updated == null -> Unit
                         updated.bookmark == null && !updated.isFavorite ->
                             bookmarkRepository.deleteBookmark(updated)
+
                         else -> bookmarkRepository.updateBookmark(updated)
                     }
                     _uiState.update {
                         it.copy(
                             bookmarkDialogShown = false,
-                            selectedPair = null
+                            dialogBookmark = null
                         )
                     }
                 }
@@ -151,7 +159,11 @@ class HomeViewModel(
         }
     }
 
-    private fun pager(homeTab: HomeTab) = Pager(
+    private fun pager(homeTab: HomeTab): Flow<PagingData<AnimeBookmarkPair>> {
+        val bookmarkFlow = bookmarkRepository
+            .getBookmarks()
+            .map { it.associateBy { bookmark -> bookmark.animeId } }
+        return Pager(
             config = PagingConfig(
                 pageSize = PAGE_JUMP,
                 enablePlaceholders = true
@@ -159,6 +171,14 @@ class HomeViewModel(
             pagingSourceFactory = { AnimePagingSource(animeRepository, homeTab) }
         )
             .flow
-            .map { source -> source.map { AnimeBookmarkPair(it, bookmarkRepository.getBookmark(it.id)) } }
             .cachedIn(viewModelScope)
+            .combine(bookmarkFlow) { pagingData, bookmarks ->
+                pagingData.map { anime ->
+                    AnimeBookmarkPair(
+                        anime = anime,
+                        bookmark = bookmarks[anime.id]
+                    )
+                }
+            }
+    }
 }

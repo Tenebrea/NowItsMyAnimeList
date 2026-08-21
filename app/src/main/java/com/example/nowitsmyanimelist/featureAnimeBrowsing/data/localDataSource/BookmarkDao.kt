@@ -18,8 +18,11 @@ interface BookmarkDao {
     fun getBookmarksByType(type: String): Flow<List<Bookmark>>
 
     // Экран работает с идентификатором аниме из AniList, а не с первичным ключом строки закладки.
+    @Query("SELECT * FROM bookmark")
+    fun getBookmarks(): Flow<List<Bookmark>>
+
     @Query("SELECT * FROM bookmark WHERE anime_id = :animeId")
-    suspend fun getBookmarkByAnimeId(animeId: Int): Bookmark?
+    fun getBookmarkByAnimeId(animeId: Int): Bookmark?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookmark(bookmark: Bookmark)

@@ -147,11 +147,12 @@ fun AnimeDescription(
             Text(
                 text = anime.title,
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f)
             )
             IconButton(
                 onClick = onShowMoreOptions,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(32.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.MoreVert,
@@ -215,7 +216,7 @@ fun AnimeCardPreview() {
     AnimeCard(
         anime = Anime(
             id = 1,
-            title = "Naruto",
+            title = "Naruto but I reincarnated as a slime in another world with disbalanced ability and my party betrayed me",
             description = "Some description",
             episodes = 12,
             isAdult = false,

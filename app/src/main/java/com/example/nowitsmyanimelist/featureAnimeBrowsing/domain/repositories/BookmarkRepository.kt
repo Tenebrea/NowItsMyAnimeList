@@ -14,5 +14,6 @@ interface BookmarkRepository {
     // Запись в Room асинхронна; suspend не позволяет выполнить блокирующую работу в главном потоке.
     suspend fun updateBookmark(bookmark: Bookmark)
     suspend fun deleteBookmark(bookmark: Bookmark)
-    suspend fun getBookmarkById(id: Int): Bookmark?
+    fun getBookmarks(): Flow<List<Bookmark>>
+    suspend fun getBookmarkById(animeId: Int): Bookmark?
 }
