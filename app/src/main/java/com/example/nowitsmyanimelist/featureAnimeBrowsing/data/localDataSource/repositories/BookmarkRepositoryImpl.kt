@@ -46,7 +46,11 @@ class BookmarkRepositoryImpl(
     }
 
     // Вызывающий код передаёт ID аниме — именно этот внешний идентификатор используется в UI.
-    override suspend fun getBookmarkById(id: Int): Bookmark? {
-        return dao.getBookmarkByAnimeId(id)
+    override fun getBookmarks(): Flow<List<Bookmark>> {
+        return dao.getBookmarks()
+    }
+
+    override suspend fun getBookmarkById(animeId: Int): Bookmark? {
+        return dao.getBookmarkByAnimeId(animeId)
     }
 }

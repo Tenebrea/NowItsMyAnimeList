@@ -11,12 +11,13 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.repositories.Bo
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.AnimeUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.BookmarkUseCases
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetAnnouncedAnimeUseCase
-import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetBookmarkUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetFinishedAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetOngoingAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetTrendingAnimeUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.UpdateBookmarkUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.DeleteBookmarkUseCase
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetBookmarkByIdUseCase
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.GetBookmarksUseCase
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.home.HomeViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -49,7 +50,7 @@ val mediaModule = module {
         GetAnnouncedAnimeUseCase(get())
     }
     single {
-        GetBookmarkUseCase(get())
+        GetBookmarksUseCase(get())
     }
     single {
         GetFinishedAnimeUseCase(get())
@@ -59,6 +60,9 @@ val mediaModule = module {
     }
     single {
         GetTrendingAnimeUseCase(get())
+    }
+    single {
+        GetBookmarkByIdUseCase(get())
     }
     // Операции изменения вынесены в use case, чтобы presentation-слой не зависел от Room.
     single { UpdateBookmarkUseCase(get()) }
@@ -74,6 +78,7 @@ val mediaModule = module {
     // Связанные операции с закладками объединены в одну зависимость для HomeViewModel.
     single {
         BookmarkUseCases(
+            get(),
             get(),
             get(),
             get()
