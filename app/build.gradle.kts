@@ -82,6 +82,7 @@ dependencies {
     androidTestImplementation(libs.paging.testing)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     // BOM нужно подключить и для androidTest: конфигурации Gradle не наследуют платформу
     // из implementation, поэтому без этого для ui-test-junit4 не определяется версия.
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
