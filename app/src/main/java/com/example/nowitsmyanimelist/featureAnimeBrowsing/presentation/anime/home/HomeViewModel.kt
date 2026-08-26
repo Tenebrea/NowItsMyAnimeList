@@ -18,6 +18,7 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.uti
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +34,7 @@ class HomeViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
+    private var loadingState: Job? = null
 
     init {
         changeTab(_uiState.value.currentTab)
@@ -55,6 +57,7 @@ class HomeViewModel(
             }
 
             HomeEvent.DismissBottomSheet -> {
+                loadingState?.cancel()
                 _uiState.update {
                     it.copy(
                         onScreenDetailShown = OnScreenDetailShown.None,
@@ -64,6 +67,7 @@ class HomeViewModel(
             }
 
             is HomeEvent.ToggleFavorite -> {
+                loadingState?.cancel()
                 viewModelScope.launch {
                     // Избранное может существовать без статуса списка, поэтому при необходимости создаём строку.
                     val current = event.pair.bookmark
@@ -83,7 +87,7 @@ class HomeViewModel(
             }
 
             is HomeEvent.OpenDialog -> {
-                viewModelScope.launch(dispatcher) {
+                loadingState = viewModelScope.launch(dispatcher) {
                     try {
                         _uiState.update {
                             it.copy(
@@ -110,7 +114,7 @@ class HomeViewModel(
             is HomeEvent.ChangeBookmark -> {
                 // Без выбранного аниме невозможно выполнить корректное изменение базы данных.
                 val selectedPair = _uiState.value.selectedPair ?: return
-                viewModelScope.launch(dispatcher) {
+                loadingState = viewModelScope.launch(dispatcher) {
                     val current = _uiState.value.dialogBookmark
                     val updated = current?.copy(bookmark = event.type?.name)
                         ?: event.type?.let {
