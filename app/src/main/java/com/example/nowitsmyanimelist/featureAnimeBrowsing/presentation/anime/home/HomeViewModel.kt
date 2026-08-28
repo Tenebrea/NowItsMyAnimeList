@@ -14,7 +14,11 @@ import com.example.nowitsmyanimelist.featureAnimeBrowsing.domain.useCases.Bookma
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.AnimeBookmarkPair
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.HomeTab
 import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.LoadingState
+import com.example.nowitsmyanimelist.featureAnimeBrowsing.presentation.anime.utils.OnScreenDetailShown
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,11 +28,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    val animeRepository: AnimeUseCases,
-    val bookmarkRepository: BookmarkUseCases
+    private val animeRepository: AnimeUseCases,
+    private val bookmarkRepository: BookmarkUseCases,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
+    private var loadingState: Job? = null
 
     init {
         changeTab(_uiState.value.currentTab)
@@ -42,14 +48,26 @@ class HomeViewModel(
 
             is HomeEvent.UpdateBottomSheet -> {
                 // Сохраняем выбранный элемент вместе с флагом, чтобы действия sheet имели безопасную цель.
-                _uiState.update { it.copy(bottomSheetShown = true, selectedPair = event.pair) }
+                _uiState.update {
+                    it.copy(
+                        onScreenDetailShown = OnScreenDetailShown.AnimeBottomSheet,
+                        selectedPair = event.pair
+                    )
+                }
             }
 
             HomeEvent.DismissBottomSheet -> {
-                _uiState.update { it.copy(bottomSheetShown = false, selectedPair = null) }
+                loadingState?.cancel()
+                _uiState.update {
+                    it.copy(
+                        onScreenDetailShown = OnScreenDetailShown.None,
+                        selectedPair = null
+                    )
+                }
             }
 
             is HomeEvent.ToggleFavorite -> {
+                loadingState?.cancel()
                 viewModelScope.launch {
                     // Избранное может существовать без статуса списка, поэтому при необходимости создаём строку.
                     val current = event.pair.bookmark
@@ -69,20 +87,26 @@ class HomeViewModel(
             }
 
             is HomeEvent.OpenDialog -> {
-                // Модальные sheet и dialog не должны оставаться видимыми друг поверх друга.
-                _uiState.update { it.copy(bottomSheetShown = false) }
-
-                viewModelScope.launch(Dispatchers.IO) {
-                    _uiState.update {
-                        it.copy(
-                            dialogBookmark = bookmarkRepository.getBookmarkById(event.anime.id)
-                        )
-                    }
-                }.invokeOnCompletion {
-                    _uiState.update {
-                        it.copy(
-                            bookmarkDialogShown = true
-                        )
+                loadingState = viewModelScope.launch(dispatcher) {
+                    try {
+                        _uiState.update {
+                            it.copy(
+                                dialogBookmark = bookmarkRepository.getBookmarkById(event.anime.id),
+                                onScreenDetailShown = OnScreenDetailShown.SelectBookmarkDialog()
+                            )
+                        }
+                    } catch (e: CancellationException) {
+                        _uiState.update {
+                            it.copy(
+                                onScreenDetailShown = OnScreenDetailShown.None
+                            )
+                        }
+                    } catch (e: Exception) {
+                        _uiState.update {
+                            it.copy(
+                                onScreenDetailShown = OnScreenDetailShown.SelectBookmarkDialog(e)
+                            )
+                        }
                     }
                 }
             }
@@ -90,7 +114,7 @@ class HomeViewModel(
             is HomeEvent.ChangeBookmark -> {
                 // Без выбранного аниме невозможно выполнить корректное изменение базы данных.
                 val selectedPair = _uiState.value.selectedPair ?: return
-                viewModelScope.launch(Dispatchers.IO) {
+                loadingState = viewModelScope.launch(dispatcher) {
                     val current = _uiState.value.dialogBookmark
                     val updated = current?.copy(bookmark = event.type?.name)
                         ?: event.type?.let {
@@ -112,7 +136,7 @@ class HomeViewModel(
                     }
                     _uiState.update {
                         it.copy(
-                            bookmarkDialogShown = false,
+                            onScreenDetailShown = OnScreenDetailShown.None,
                             dialogBookmark = null
                         )
                     }
@@ -122,7 +146,7 @@ class HomeViewModel(
             is HomeEvent.DismissDialog -> {
                 _uiState.update {
                     it.copy(
-                        bookmarkDialogShown = false,
+                        onScreenDetailShown = OnScreenDetailShown.None,
                         selectedPair = null
                     )
                 }
