@@ -167,18 +167,17 @@ class HomeViewModel(
     }
 
     private fun loadData(homeTab: HomeTab) = viewModelScope.launch {
-        val newList = _uiState.value.animeLists.toMutableMap()
-        newList[homeTab] = LoadingState.Loading
+        val loadingList = _uiState.value.animeLists + (homeTab to LoadingState.Loading)
         _uiState.update {
             it.copy(
-                animeLists = newList,
+                animeLists = loadingList,
                 currentTab = homeTab
             )
         }
-        newList[homeTab] = LoadingState.Done(pager(homeTab))
+        val doneList = _uiState.value.animeLists + (homeTab to LoadingState.Done(pager(homeTab)))
         _uiState.update {
             it.copy(
-                animeLists = newList
+                animeLists = doneList
             )
         }
     }
