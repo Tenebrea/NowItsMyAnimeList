@@ -87,11 +87,13 @@ class HomeViewModel(
             }
 
             is HomeEvent.OpenDialog -> {
+                loadingState = null
                 loadingState = viewModelScope.launch(dispatcher) {
                     try {
+                        val dialogBookmark = bookmarkRepository.getBookmarkById(event.anime.id)
                         _uiState.update {
                             it.copy(
-                                dialogBookmark = bookmarkRepository.getBookmarkById(event.anime.id),
+                                dialogBookmark = dialogBookmark,
                                 onScreenDetailShown = OnScreenDetailShown.SelectBookmarkDialog()
                             )
                         }
@@ -101,6 +103,7 @@ class HomeViewModel(
                                 onScreenDetailShown = OnScreenDetailShown.None
                             )
                         }
+                        throw CancellationException()
                     } catch (e: Exception) {
                         _uiState.update {
                             it.copy(
@@ -144,6 +147,7 @@ class HomeViewModel(
             }
 
             is HomeEvent.DismissDialog -> {
+                loadingState = null
                 _uiState.update {
                     it.copy(
                         onScreenDetailShown = OnScreenDetailShown.None,
